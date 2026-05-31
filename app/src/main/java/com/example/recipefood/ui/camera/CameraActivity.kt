@@ -14,9 +14,11 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.recipefood.RecipeFoodApp
+import com.example.recipefood.R
 import com.example.recipefood.databinding.ActivityCameraBinding
 import com.example.recipefood.ui.add.AddRecipeActivity
 import com.example.recipefood.ui.editproducts.EditProductsActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +45,17 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            contentResolver.openInputStream(it)?.use { inputStream ->
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                analyzeImage(bitmap)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater)
@@ -59,6 +72,10 @@ class CameraActivity : AppCompatActivity() {
 
         binding.btnCapture.setOnClickListener {
             takePhoto()
+        }
+
+        binding.btnGallery.setOnClickListener {
+            pickImageLauncher.launch("image/*")
         }
 
         binding.btnBack.setOnClickListener {
@@ -146,7 +163,6 @@ class CameraActivity : AppCompatActivity() {
                     }
                     setResult(RESULT_OK, resultIntent)
                     
-                    // Якщо викликано не з startActivityForResult, а просто так
                     if (callingActivity == null) {
                         val intent = Intent(this@CameraActivity, AddRecipeActivity::class.java)
                         intent.putExtra("recipe_json", Gson().toJson(recipe))
@@ -189,9 +205,33 @@ class CameraActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 binding.progressBar.visibility = android.view.View.GONE
                 binding.btnCapture.isEnabled = true
-                Toast.makeText(this@CameraActivity, "Помилка аналізу: ${e.message}", Toast.LENGTH_LONG).show()
+                
+                if (e.message == "NOT_FOOD") {
+                    showNotFoodDialog()
+                } else {
+                    Toast.makeText(this@CameraActivity, "Помилка аналізу: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
+    }
+
+    private fun showNotFoodDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_humor, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+            
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        
+        dialogView.findViewById<android.widget.TextView>(R.id.tvHumorTitle).text = "Ой, халепа!"
+        dialogView.findViewById<android.widget.TextView>(R.id.tvHumorMessage).text = 
+            "Схоже, це не зовсім їстівна штука... Навіть наш ШІ не наважився це куштувати! Спробуйте сфотографувати справжню страву."
+            
+        dialogView.findViewById<android.view.View>(R.id.btnHumorConfirm).setOnClickListener {
+            dialog.dismiss()
+        }
+        
+        dialog.show()
     }
 
     private fun bitmapToBase64(bitmap: Bitmap): String {

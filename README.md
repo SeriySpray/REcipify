@@ -1,6 +1,6 @@
-# 🥘 Food & Recipe Analyzer (AI-Powered)
+# 🥘 REcipify (AI-Powered)
 
-An advanced Android application designed to revolutionize how you manage recipes and track nutrition. Powered by **Groq AI**, this app provides intelligent analysis, seamless organization, and a modern user experience.
+An advanced Android application designed to revolutionize how you manage recipes and track nutrition. Powered by **Groq AI**, REcipify provides intelligent analysis, seamless organization, and a modern user experience.
 
 ## ✨ Key Features
 

@@ -18,6 +18,10 @@ android {
     namespace = "com.example.recipefood"
     compileSdk = 36
 
+    base {
+        archivesName.set("REcipify")
+    }
+
     defaultConfig {
         applicationId = "com.example.recipefood"
         minSdk = 24

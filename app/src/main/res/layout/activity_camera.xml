@@ -30,6 +30,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:tint="@color/text_tertiary"/>
 
+    <!-- Gallery button -->
+    <ImageButton
+        android:id="@+id/btnGallery"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="24dp"
+        android:background="@drawable/icon_btn_bg"
+        android:src="@drawable/ic_gallery"
+        android:scaleType="centerInside"
+        android:padding="12dp"
+        android:contentDescription="Вибрати з галереї"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCapture"
+        app:layout_constraintTop_toTopOf="@+id/btnCapture"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/white"/>
+
     <!-- Capture button: white ring -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCapture"

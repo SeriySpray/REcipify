@@ -85,21 +85,22 @@ class GroqAIService {
         }
 
         val prompt = """
-            Проаналізуй це фото страви та визнач:
-            1. Назву страви
-            2. Список продуктів у страві
-            3. Приблизну вагу кожного продукту в грамах
-            Аналіз виконуй максимально точно опираючись на надійні джерела. Назви страв та продуктів вписуй на українській мові.
-            Поверни результат у форматі JSON:
+            Проаналізуй це фото страви. 
+            ВАЖЛИВО: Якщо на фото НЕМАЄ їжі (наприклад, це просто кімната, людина, текст, чи будь-який предмет, який не можна з'їсти), поверни JSON з полем "is_food": false.
+            
+            Якщо їжа є:
+            1. Визнач інгредієнти та їхню вагу для ОДНІЄЇ ПОРЦІЇ.
+            2. ПРАВИЛО МАСШТАБУ: Використовуй розмір тарілки/виделки. Одна порція ≈ 300-500г.
+            3. ПРИХОВАНІ ІНГРЕДІЄНТИ: Враховуй олію, соуси, цукор.
+
+            Поверни результат ТІЛЬКИ у форматі JSON українською мовою:
             {
+              "is_food": true,
               "name": "Назва страви",
               "products": [
-                {"name": "Продукт 1", "weight": 100},
-                {"name": "Продукт 2", "weight": 50}
+                {"name": "Інгредієнт", "weight": вага_в_грамах}
               ]
             }
-
-            Відповідай ТІЛЬКИ валідним JSON без додаткового тексту.
         """.trimIndent()
 
         val requestBody = JsonObject().apply {
@@ -133,22 +134,58 @@ class GroqAIService {
             val response = client.newCall(request).execute()
             val responseBody = response.body?.string() ?: throw Exception("Порожня відповідь від сервера")
 
-            Log.d("GroqService", "Response code: ${response.code}")
-
             if (!response.isSuccessful) {
-                Log.e("GroqService", "API Error: ${response.code} - $responseBody")
                 handleErrorCode(response.code, responseBody)
             }
 
             val content = extractContent(responseBody)
-            Log.d("GroqService", "Parsed content: $content")
+            val json = JsonParser.parseString(content).asJsonObject
+            
+            if (json.has("is_food") && !json.get("is_food").asBoolean) {
+                throw Exception("NOT_FOOD")
+            }
 
-            val food = gson.fromJson(content, Food::class.java)
-            Log.d("GroqService", "Successfully parsed Food: ${food.name}, products: ${food.products.size}")
-            food
+            gson.fromJson(content, Food::class.java)
         } catch (e: Exception) {
             Log.e("GroqService", "Exception in analyzeFood", e)
             throw e
+        }
+    }
+
+    suspend fun validateMealName(name: String): Pair<Boolean, String?> = withContext(Dispatchers.IO) {
+        if (name.length < 2) return@withContext true to null
+        waitForRateLimit()
+        
+        val prompt = """
+            Ти - кулінарний критик-гуморист. Проаналізуй назву страви: "$name".
+            Твоє завдання:
+            1. Якщо назва - це адекватна їжа (навіть якщо проста, як "хліб"), поверни JSON { "is_okay": true }.
+            2. Якщо назва - це повна дурня, неїстівні речі (цвяхи, бетон, шкарпетки) або щось відверто огидне/незрозуміле, поверни { "is_okay": false, "comment": "Жартівливий короткий коментар українською про те, чому це не варто їсти" }.
+            
+            Відповідай ТІЛЬКИ JSON.
+        """.trimIndent()
+
+        val requestBody = JsonObject().apply {
+            addProperty("model", textModel)
+            addProperty("temperature", 0.7)
+            add("messages", gson.toJsonTree(listOf(mapOf("role" to "user", "content" to prompt))))
+        }.toString()
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .addHeader("Authorization", "Bearer $apiKey")
+            .post(requestBody.toRequestBody("application/json".toMediaType()))
+            .build()
+
+        try {
+            val response = client.newCall(request).execute()
+            val content = extractContent(response.body?.string() ?: "")
+            val json = JsonParser.parseString(content).asJsonObject
+            val isOkay = json.get("is_okay").asBoolean
+            val comment = if (!isOkay) json.get("comment").asString else null
+            isOkay to comment
+        } catch (e: Exception) {
+            true to null
         }
     }
 

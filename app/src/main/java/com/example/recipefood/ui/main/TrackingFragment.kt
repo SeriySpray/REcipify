@@ -179,9 +179,14 @@ class TrackingFragment : Fragment() {
             startActivity(Intent(requireContext(), CameraActivity::class.java))
         }
 
-        view.findViewById<View>(R.id.btnRecipeAnalyze).setOnClickListener {
-            val intent = Intent(requireContext(), CameraActivity::class.java)
-            intent.putExtra("GENERATE_RECIPE_MODE", true)
+        view.findViewById<View>(R.id.btnManualAdd).setOnClickListener {
+            val emptyFood = com.example.recipefood.model.Food(
+                name = "",
+                products = mutableListOf(),
+                nutrition = null
+            )
+            val intent = Intent(requireContext(), com.example.recipefood.ui.editproducts.EditProductsActivity::class.java)
+            intent.putExtra("food_json", com.google.gson.Gson().toJson(emptyFood))
             startActivity(intent)
         }
     }

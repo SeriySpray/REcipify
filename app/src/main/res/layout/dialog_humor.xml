@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_background"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvHumorTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ой, халепа!"
+        android:textColor="@color/text_primary"
+        android:textSize="20sp"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvHumorMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Текст повідомлення..."
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="24dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnHumorConfirm"
+        style="@style/PrimaryButton"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:text="Зрозумів" />
+
+</LinearLayout>

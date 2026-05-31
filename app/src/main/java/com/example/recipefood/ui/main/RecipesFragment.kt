@@ -34,6 +34,8 @@ class RecipesFragment : Fragment() {
 
     private var allRecipes = listOf<Recipe>()
 
+    private var isFabMenuOpen = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,8 +62,26 @@ class RecipesFragment : Fragment() {
             }
         })
 
-        view.findViewById<View>(R.id.fabAdd).setOnClickListener {
+        val fabAdd = view.findViewById<View>(R.id.fabAdd)
+        val fabManualContainer = view.findViewById<View>(R.id.fabManualContainer)
+        val fabPhotoContainer = view.findViewById<View>(R.id.fabPhotoContainer)
+        val fabAddManual = view.findViewById<View>(R.id.fabAddManual)
+        val fabAddPhoto = view.findViewById<View>(R.id.fabAddPhoto)
+
+        fabAdd.setOnClickListener {
+            toggleFabMenu(fabAdd, fabManualContainer, fabPhotoContainer)
+        }
+
+        fabAddManual.setOnClickListener {
+            toggleFabMenu(fabAdd, fabManualContainer, fabPhotoContainer)
             startActivity(Intent(requireContext(), AddRecipeActivity::class.java))
+        }
+
+        fabAddPhoto.setOnClickListener {
+            toggleFabMenu(fabAdd, fabManualContainer, fabPhotoContainer)
+            val intent = Intent(requireContext(), com.example.recipefood.ui.camera.CameraActivity::class.java)
+            intent.putExtra("GENERATE_RECIPE_MODE", true)
+            startActivity(intent)
         }
 
         view.findViewById<View>(R.id.btnMenu).setOnClickListener { anchor ->
@@ -91,6 +111,30 @@ class RecipesFragment : Fragment() {
         viewModel.sortedRecipes.observe(viewLifecycleOwner) { recipes ->
             allRecipes = recipes ?: emptyList()
             applyFilter(etSearch.text.toString())
+        }
+    }
+
+    private fun toggleFabMenu(mainFab: View, manual: View, photo: View) {
+        isFabMenuOpen = !isFabMenuOpen
+        
+        if (isFabMenuOpen) {
+            mainFab.animate().rotation(45f).setDuration(200).start()
+            
+            manual.visibility = View.VISIBLE
+            manual.animate().alpha(1f).translationY(-20f).setDuration(200).start()
+            
+            photo.visibility = View.VISIBLE
+            photo.animate().alpha(1f).translationY(-20f).setDuration(200).setStartDelay(50).start()
+        } else {
+            mainFab.animate().rotation(0f).setDuration(200).start()
+            
+            manual.animate().alpha(0f).translationY(0f).setDuration(200).withEndAction {
+                manual.visibility = View.GONE
+            }.start()
+            
+            photo.animate().alpha(0f).translationY(0f).setDuration(200).withEndAction {
+                photo.visibility = View.GONE
+            }.start()
         }
     }
 

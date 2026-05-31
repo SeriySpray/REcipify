@@ -7,12 +7,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.recipefood.RecipeFoodApp
+import com.example.recipefood.R
 import com.example.recipefood.adapters.ProductsAdapter
 import com.example.recipefood.databinding.ActivityEditProductsBinding
 import com.example.recipefood.databinding.DialogAddProductBinding
 import com.example.recipefood.model.Food
 import com.example.recipefood.model.Product
 import com.example.recipefood.ui.results.ResultsActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -136,11 +138,27 @@ class EditProductsActivity : AppCompatActivity() {
     }
 
     private fun analyzeNutrition() {
+        val name = binding.etFoodName.text.toString().trim()
+        if (name.isEmpty()) {
+            Toast.makeText(this, "Введіть назву страви", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         binding.progressBar.visibility = android.view.View.VISIBLE
         binding.btnAnalyze.isEnabled = false
 
         lifecycleScope.launch {
             try {
+                // Step 1: Validate name (is it edible/meaningful?)
+                val (isOkay, comment) = groqService.validateMealName(name)
+                if (!isOkay) {
+                    binding.progressBar.visibility = android.view.View.GONE
+                    binding.btnAnalyze.isEnabled = true
+                    showWeirdFoodDialog(comment ?: "Це точно їжа? Спробуйте щось апетитніше!")
+                    return@launch
+                }
+
+                // Step 2: Analyze nutrition
                 val analyzedFood = withContext(Dispatchers.IO) {
                     groqService.analyzeNutrition(food)
                 }
@@ -157,5 +175,23 @@ class EditProductsActivity : AppCompatActivity() {
                 Toast.makeText(this@EditProductsActivity, "Помилка аналізу: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun showWeirdFoodDialog(comment: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_humor, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+            
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        
+        dialogView.findViewById<android.widget.TextView>(R.id.tvHumorTitle).text = "Хмм... Дивний вибір"
+        dialogView.findViewById<android.widget.TextView>(R.id.tvHumorMessage).text = comment
+        dialogView.findViewById<android.view.View>(R.id.btnHumorConfirm).apply {
+            (this as? com.google.android.material.button.MaterialButton)?.text = "Зміню на їжу"
+            setOnClickListener { dialog.dismiss() }
+        }
+        
+        dialog.show()
     }
 }

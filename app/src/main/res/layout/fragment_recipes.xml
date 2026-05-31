@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black">
+    android:background="@color/black"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -117,19 +119,101 @@
 
     </LinearLayout>
 
-    <!-- FAB overlaid at bottom-end -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
+    <!-- Expandable FAB Menu -->
+    <LinearLayout
+        android:id="@+id/fabMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="36dp"
-        android:contentDescription="Додати рецепт"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/white"
-        app:tint="@color/black"
-        app:elevation="4dp"
-        app:maxImageSize="24dp" />
+        android:orientation="vertical"
+        android:gravity="end"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingTop="20dp">
+
+        <!-- Photo Recipe Chip -->
+        <LinearLayout
+            android:id="@+id/fabPhotoContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            android:alpha="0"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Рецепт по фото"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/chip_bg"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAddPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:fabSize="mini"
+                android:src="@drawable/ic_camera"
+                app:backgroundTint="@color/white"
+                app:tint="@color/black"
+                app:elevation="4dp" />
+        </LinearLayout>
+
+        <!-- Manual Recipe Chip -->
+        <LinearLayout
+            android:id="@+id/fabManualContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            android:alpha="0">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Вручну"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/chip_bg"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAddManual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:fabSize="mini"
+                android:src="@drawable/ic_edit"
+                app:backgroundTint="@color/white"
+                app:tint="@color/black"
+                app:elevation="4dp" />
+        </LinearLayout>
+
+        <!-- Main Toggle FAB -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Додати рецепт"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/white"
+            app:tint="@color/black"
+            app:elevation="4dp"
+            app:maxImageSize="24dp" />
+    </LinearLayout>
 
 </FrameLayout>

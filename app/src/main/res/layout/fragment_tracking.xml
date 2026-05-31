@@ -164,8 +164,9 @@
                     android:id="@+id/caloriesGoalTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_dim"
-                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
                     tools:text="з 2000 ккал" />
             </LinearLayout>
 
@@ -371,11 +372,11 @@
         android:background="@drawable/bottom_fade_gradient">
 
         <Button
-            android:id="@+id/btnRecipeAnalyze"
+            android:id="@+id/btnManualAdd"
             style="@style/SecondaryButton"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="Рецепт по фото"
+            android:text="Додати вручну"
             android:layout_marginBottom="8dp"
             android:backgroundTint="@color/surface_elevated"
             android:textColor="@color/text_primary"
