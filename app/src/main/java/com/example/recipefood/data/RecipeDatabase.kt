@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [Recipe::class, Folder::class, SavedMeal::class, UserSettings::class],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

@@ -20,7 +20,6 @@ import com.example.recipefood.algorithms.SortingAlgorithms
 import com.example.recipefood.model.Recipe
 import com.example.recipefood.ui.add.AddRecipeActivity
 import com.example.recipefood.ui.detail.RecipeDetailActivity
-import com.example.recipefood.ui.history.HistoryActivity
 import com.example.recipefood.ui.settings.SettingsActivity
 import com.example.recipefood.viewmodel.RecipeViewModel
 
@@ -82,6 +81,10 @@ class RecipesFragment : Fragment() {
             val intent = Intent(requireContext(), com.example.recipefood.ui.camera.CameraActivity::class.java)
             intent.putExtra("GENERATE_RECIPE_MODE", true)
             startActivity(intent)
+        }
+
+        view.findViewById<View>(R.id.btnReporting).setOnClickListener {
+            startActivity(Intent(requireContext(), ReportingActivity::class.java))
         }
 
         view.findViewById<View>(R.id.btnMenu).setOnClickListener { anchor ->

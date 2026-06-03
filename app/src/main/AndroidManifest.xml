@@ -25,6 +25,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+        <activity
+            android:name=".ui.main.ReportingActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:screenOrientation="portrait" />
+
         <!-- Main Activity (Recipes List) -->
         <activity
             android:name=".ui.main.MainActivity"

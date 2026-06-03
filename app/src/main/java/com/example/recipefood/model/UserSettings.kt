@@ -12,5 +12,7 @@ data class UserSettings(
     val targetFats: Double = 0.0,
     val targetCarbs: Double = 0.0,
     val currentStreak: Int = 0,
-    val lastStreakDate: Long = 0
+    val lastStreakDate: Long = 0,
+    val lastAiTip: String? = null,
+    val lastAiTipMealCount: Int = 0
 )

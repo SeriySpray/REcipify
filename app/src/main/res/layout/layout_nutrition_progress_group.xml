@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Calories -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Калорії"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tvValueCalories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            tools:text="1850 / 2200" />
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/pbCalories"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginBottom="16dp"
+        android:progressDrawable="@drawable/progress_bar_custom_calories"
+        tools:progress="70" />
+
+    <!-- Proteins -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Білки"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tvValueProteins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            tools:text="120г / 150г" />
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/pbProteins"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginBottom="12dp"
+        android:progressDrawable="@drawable/progress_bar_custom_protein"
+        tools:progress="80" />
+
+    <!-- Fats -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Жири"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tvValueFats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            tools:text="65г / 70г" />
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/pbFats"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginBottom="12dp"
+        android:progressDrawable="@drawable/progress_bar_custom_fat"
+        tools:progress="90" />
+
+    <!-- Carbs -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Вуглеводи"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tvValueCarbs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            tools:text="210г / 250г" />
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/pbCarbs"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:progressDrawable="@drawable/progress_bar_custom_carbs"
+        tools:progress="84" />
+
+</LinearLayout>

@@ -28,7 +28,7 @@ class RecipeFoodApp : Application() {
 
     private suspend fun seedDatabaseIfEmpty() {
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        if (prefs.getBoolean("seeded_v5", false)) return
+        if (prefs.getBoolean("seeded_v8", false)) return
 
         val db = RecipeDatabase.getDatabase(this)
         val recipeDao = db.recipeDao()
@@ -44,7 +44,9 @@ class RecipeFoodApp : Application() {
             targetCalories = 2200.0,
             targetProteins = 150.0,
             targetFats = 70.0,
-            targetCarbs = 250.0
+            targetCarbs = 250.0,
+            lastAiTip = null,
+            lastAiTipMealCount = 0
         ))
 
         // --- Рецепти ---
@@ -190,6 +192,6 @@ class RecipeFoodApp : Application() {
         )
         meals.forEach { mealDao.insertMeal(it) }
 
-        prefs.edit().putBoolean("seeded_v5", true).apply()
+        prefs.edit().putBoolean("seeded_v8", true).apply()
     }
 }

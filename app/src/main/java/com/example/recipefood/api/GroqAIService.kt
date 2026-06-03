@@ -474,4 +474,68 @@ class GroqAIService {
             throw e
         }
     }
+
+    suspend fun getNutritionTips(
+        todayStats: NutritionInfo, 
+        targets: NutritionInfo
+    ): String = withContext(Dispatchers.IO) {
+        Log.d("GroqService", "getNutritionTips() called for strict math analysis")
+        waitForRateLimit()
+
+        val prompt = """
+            Ти — професійний дієтолог. Твоє завдання: математично точно порівняти споживання за сьогодні з цілями.
+            
+            ДАНІ ДЛЯ АНАЛІЗУ:
+            1. Твоя ціль: ${targets.calories.toInt()} ккал.
+            2. Реально спожито сьогодні: ${todayStats.calories.toInt()} ккал.
+            3. БЖВ (Реальне): Б:${todayStats.proteins.toInt()}г, Ж:${todayStats.fats.toInt()}г, В:${todayStats.carbs.toInt()}г.
+            4. БЖВ (Ціль): Б:${targets.proteins.toInt()}г, Ж:${targets.fats.toInt()}г, В:${targets.carbs.toInt()}г.
+            
+            МАТЕМАТИЧНІ ПРАВИЛА:
+            - Якщо ${todayStats.calories.toInt()} менше або дорівнює ${targets.calories.toInt()} — це НЕ ПЕРЕВИЩЕННЯ. Заборонено писати, що користувач з'їв більше норми.
+            - ДІАПАЗОН НОРМИ: від ${(targets.calories * 0.85).toInt()} до ${(targets.calories * 1.1).toInt()} ккал. Якщо споживання в цих межах, пиши, що прогрес ідеальний.
+            - ДЕФІЦИТ: Якщо споживання менше ${(targets.calories * 0.8).toInt()} ккал.
+            - НАДЛИШОК: Тільки якщо споживання більше ${(targets.calories * 1.15).toInt()} ккал.
+            
+            ПРАВИЛА ВІДПОВІДІ:
+            1. Мова: ВИКЛЮЧНО літературна українська. Жодних "орехов", "сортов", "сахаров".
+            2. Стиль: Тільки чистий текст, повні речення. Без зірочок, списків та жирного шрифту.
+            3. Логіка: Похвали, якщо користувач у діапазоні норми. Дай пораду, тільки якщо є реальний дефіцит або реальний надлишок.
+            
+            Поверни ТІЛЬКИ текст поради.
+        """.trimIndent()
+
+        val requestBody = JsonObject().apply {
+            addProperty("model", textModel)
+            addProperty("temperature", 0.6)
+            addProperty("max_tokens", 1024)
+            add("messages", gson.toJsonTree(listOf(
+                mapOf("role" to "user", "content" to prompt)
+            )))
+        }.toString()
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Authorization", "Bearer $apiKey")
+            .post(requestBody.toRequestBody("application/json".toMediaType()))
+            .build()
+
+        try {
+            val response = client.newCall(request).execute()
+            val responseBody = response.body?.string() ?: throw Exception("Порожня відповідь")
+
+            if (!response.isSuccessful) {
+                handleErrorCode(response.code, responseBody)
+            }
+
+            val rawContent = extractContent(responseBody)
+            // Видаляємо маркдаун (зірочки, решітки, підкреслення) та зайві пробіли
+            rawContent.replace(Regex("[*#_~`>]+"), "")
+                .replace(Regex("\\s+"), " ")
+                .trim()
+        } catch (e: Exception) {
+            "На жаль, не вдалося згенерувати поради зараз. Спробуйте пізніше!"
+        }
+    }
 }

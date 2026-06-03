@@ -42,9 +42,9 @@
     <color name="difficulty_medium">#FF9800</color>
     <color name="difficulty_hard">#F44336</color>
 
-    <color name="chart_protein">#2D2D2D</color>
-    <color name="chart_fat">#666666</color>
-    <color name="chart_carbs">#AAAAAA</color>
+    <color name="chart_protein">#4CAF50</color>
+    <color name="chart_fat">#FF9800</color>
+    <color name="chart_carbs">#2196F3</color>
 
     <color name="progress_bg">#DDDDDD</color>
     <color name="progress_fill">#3D3D3D</color>

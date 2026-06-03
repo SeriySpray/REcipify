@@ -32,6 +32,18 @@
                 android:fontFamily="sans-serif-medium" />
 
             <ImageView
+                android:id="@+id/btnReporting"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:src="@drawable/ic_reporting"
+                android:contentDescription="Центр звітності"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="@color/text_primary" />
+
+            <ImageView
                 android:id="@+id/btnMenu"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
