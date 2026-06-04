@@ -285,14 +285,30 @@ class RecipeDetailActivity : AppCompatActivity() {
     }
 
     private fun showDeleteConfirmationDialog() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.delete_recipe_title)
-            .setMessage(R.string.delete_recipe_message)
-            .setPositiveButton(R.string.yes) { _, _ ->
-                deleteRecipe()
-            }
-            .setNegativeButton(R.string.no, null)
-            .show()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirmation, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialogView.findViewById<TextView>(R.id.dialogTitle).text = getString(R.string.delete_recipe_title)
+        dialogView.findViewById<TextView>(R.id.dialogMessage).text = getString(R.string.delete_recipe_message)
+
+        val confirmBtn = dialogView.findViewById<Button>(R.id.confirmButton)
+        confirmBtn.text = getString(R.string.yes)
+        confirmBtn.setOnClickListener {
+            deleteRecipe()
+            dialog.dismiss()
+        }
+
+        val cancelBtn = dialogView.findViewById<Button>(R.id.cancelButton)
+        cancelBtn.text = getString(R.string.no)
+        cancelBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun deleteRecipe() {

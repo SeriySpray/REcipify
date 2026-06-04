@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:text="Сьогодні"
                 android:textColor="@color/text_primary"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:fontFamily="sans-serif-medium"
                 android:clickable="true"
                 android:focusable="true"

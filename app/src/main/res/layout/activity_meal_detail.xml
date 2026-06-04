@@ -7,14 +7,10 @@
     android:background="@color/black">
 
     <!-- Top bar -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="48dp"
-        android:paddingBottom="12dp">
+        android:layout_height="56dp"
+        android:paddingHorizontal="16dp">
 
         <ImageButton
             android:id="@+id/btnBackLink"
@@ -25,31 +21,19 @@
             android:scaleType="centerInside"
             android:padding="8dp"
             android:tint="@color/text_secondary"
-            android:contentDescription="Назад" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:contentDescription="Назад"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Деталі страви"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            android:fontFamily="sans-serif-medium" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <View
-            android:layout_width="38dp"
-            android:layout_height="1dp"
-            android:visibility="invisible" />
-    </LinearLayout>
+            android:textSize="17sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"

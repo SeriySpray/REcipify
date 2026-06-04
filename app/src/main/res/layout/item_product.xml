@@ -48,7 +48,7 @@
             android:padding="4dp"
             android:visibility="gone"
             android:contentDescription="Edit"
-            android:tint="@color/text_muted" />
+            android:tint="@color/chart_fat" />
 
         <ImageButton
             android:id="@+id/btnDelete"
@@ -61,7 +61,7 @@
             android:padding="4dp"
             android:visibility="gone"
             android:contentDescription="Delete"
-            android:tint="@color/text_muted" />
+            android:tint="@color/difficulty_hard" />
     </LinearLayout>
 
     <!-- Nutrition sub-info (shown in results mode) -->

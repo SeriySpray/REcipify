@@ -134,8 +134,12 @@ class ResultsActivity : AppCompatActivity() {
                 try {
                     repository.insertMeal(savedMeal)
                     Toast.makeText(this@ResultsActivity, "Страву збережено!", Toast.LENGTH_SHORT).show()
-                    binding.btnSave.isEnabled = false
-                    binding.btnSave.text = "Збережено"
+                    
+                    // Перехід на головний екран (трекер)
+                    val intent = Intent(this@ResultsActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    finish()
                 } catch (e: Exception) {
                     Toast.makeText(this@ResultsActivity, "Помилка збереження: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
