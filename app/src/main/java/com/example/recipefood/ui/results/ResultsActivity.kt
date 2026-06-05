@@ -137,6 +137,7 @@ class ResultsActivity : AppCompatActivity() {
                     
                     // Перехід на головний екран (трекер)
                     val intent = Intent(this@ResultsActivity, MainActivity::class.java)
+                    intent.putExtra("goto_tracker", true)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                     startActivity(intent)
                     finish()

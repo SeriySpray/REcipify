@@ -112,7 +112,14 @@ class ReportingViewModel(application: Application) : AndroidViewModel(applicatio
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
-        val cutoffDate = calendar.timeInMillis - (days.toLong() * 24 * 60 * 60 * 1000)
+        
+        // Для 1 дня беремо тільки сьогоднішні страви (від 00:00 сьогодні).
+        // Для інших періодів (тиждень/місяць) беремо відповідну кількість днів, включаючи сьогодні.
+        val cutoffDate = if (days == 1) {
+            calendar.timeInMillis
+        } else {
+            calendar.timeInMillis - ((days - 1).toLong() * 24 * 60 * 60 * 1000)
+        }
         
         val filteredMeals = meals.filter { it.date >= cutoffDate }
         
