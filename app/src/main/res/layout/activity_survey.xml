@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:fitsSystemWindows="true"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/icon_btn_bg"
+                android:src="@drawable/ic_arrow_back"
+                android:tint="@color/text_secondary"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true" />
+
+            <LinearLayout
+                android:id="@+id/progressContainer"
+                android:layout_width="160dp"
+                android:layout_height="4dp"
+                android:layout_centerInParent="true"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/step1Indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/survey_progress_active" />
+
+                <View
+                    android:id="@+id/step2Indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/survey_progress_inactive" />
+
+                <View
+                    android:id="@+id/step3Indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/survey_progress_inactive" />
+
+                <View
+                    android:id="@+id/step4Indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/survey_progress_inactive" />
+
+                <View
+                    android:id="@+id/step5Indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/survey_progress_inactive" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <!-- Content Container -->
+        <FrameLayout
+            android:id="@+id/stepContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Step 1: Gender and Age -->
+            <LinearLayout
+                android:id="@+id/step1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ваша стать та вік"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Це допоможе визначити ваш базовий метаболізм."
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="СТАТЬ"
+                    style="@style/FieldLabel"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/rgGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/card_field_bg"
+                    android:padding="4dp"
+                    android:layout_marginBottom="24dp">
+
+                    <RadioButton
+                        android:id="@+id/rbMale"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Чоловік"
+                        android:textColor="@color/text_primary"
+                        android:buttonTint="@color/white"
+                        android:padding="12dp"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/rbFemale"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Жінка"
+                        android:textColor="@color/text_primary"
+                        android:buttonTint="@color/white"
+                        android:padding="12dp" />
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ВІК"
+                    style="@style/FieldLabel"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/etAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_field_bg"
+                    android:padding="16dp"
+                    android:hint="25 років"
+                    android:textColorHint="@color/text_placeholder"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <!-- Step 2: Weight and Height -->
+            <LinearLayout
+                android:id="@+id/step2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Параметри тіла"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Введіть актуальні дані для точного розрахунку."
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ЗРІСТ (СМ)"
+                    style="@style/FieldLabel"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/etHeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_field_bg"
+                    android:padding="16dp"
+                    android:hint="175 см"
+                    android:textColorHint="@color/text_placeholder"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:inputType="numberDecimal"
+                    android:layout_marginBottom="20dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ВАГА (КГ)"
+                    style="@style/FieldLabel"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/etWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_field_bg"
+                    android:padding="16dp"
+                    android:hint="70 кг"
+                    android:textColorHint="@color/text_placeholder"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:inputType="numberDecimal" />
+            </LinearLayout>
+
+            <!-- Step 3: Activity Level -->
+            <LinearLayout
+                android:id="@+id/step3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Активність"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Оберіть ваш рівень фізичних навантажень."
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="16dp" />
+
+                <RadioGroup
+                    android:id="@+id/rgActivity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rbSedentary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Сидячий спосіб життя"
+                        android:textColor="@color/text_primary"
+                        android:padding="12dp"
+                        android:buttonTint="@color/white"
+                        android:layout_marginBottom="6dp"
+                        android:background="@drawable/card_field_bg"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/rbLight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Легка (1-3 тренування)"
+                        android:textColor="@color/text_primary"
+                        android:padding="12dp"
+                        android:buttonTint="@color/white"
+                        android:layout_marginBottom="6dp"
+                        android:background="@drawable/card_field_bg" />
+
+                    <RadioButton
+                        android:id="@+id/rbModerate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Помірна (3-5 тренувань)"
+                        android:textColor="@color/text_primary"
+                        android:padding="12dp"
+                        android:buttonTint="@color/white"
+                        android:layout_marginBottom="6dp"
+                        android:background="@drawable/card_field_bg" />
+
+                    <RadioButton
+                        android:id="@+id/rbActive"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Висока (6-7 тренувань)"
+                        android:textColor="@color/text_primary"
+                        android:padding="12dp"
+                        android:buttonTint="@color/white"
+                        android:layout_marginBottom="6dp"
+                        android:background="@drawable/card_field_bg" />
+
+                    <RadioButton
+                        android:id="@+id/rbExtra"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Екстремальна (важка праця)"
+                        android:textColor="@color/text_primary"
+                        android:padding="12dp"
+                        android:buttonTint="@color/white"
+                        android:background="@drawable/card_field_bg" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <!-- Step 4: Goal -->
+            <LinearLayout
+                android:id="@+id/step4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ваша ціль"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Це вплине на кількість калорій у раціоні."
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="16dp" />
+
+                <RadioGroup
+                    android:id="@+id/rgGoal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rbLose"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Схуднення"
+                        android:textColor="@color/text_primary"
+                        android:padding="14dp"
+                        android:buttonTint="@color/white"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/card_field_bg" />
+
+                    <RadioButton
+                        android:id="@+id/rbMaintain"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Підтримка ваги"
+                        android:textColor="@color/text_primary"
+                        android:padding="14dp"
+                        android:buttonTint="@color/white"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/card_field_bg"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/rbGain"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Набір маси"
+                        android:textColor="@color/text_primary"
+                        android:padding="14dp"
+                        android:buttonTint="@color/white"
+                        android:background="@drawable/card_field_bg" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <!-- Step 5: Allergens -->
+            <LinearLayout
+                android:id="@+id/step5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Алергії та особливості дієти"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Вкажіть продукти, які ШІ не повинен радити."
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="24dp" />
+
+                <EditText
+                    android:id="@+id/etAllergens"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minLines="5"
+                    android:gravity="top"
+                    android:background="@drawable/card_field_bg"
+                    android:padding="16dp"
+                    android:hint="Горіхи, мед, цитрусові..."
+                    android:textColorHint="@color/text_placeholder"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:inputType="textMultiLine" />
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!-- Navigation Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="24dp">
+
+            <Button
+                android:id="@+id/btnNext"
+                style="@style/PrimaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Далі"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/btnPrev"
+                style="@style/SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Назад"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

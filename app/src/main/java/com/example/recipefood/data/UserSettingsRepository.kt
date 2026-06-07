@@ -16,14 +16,47 @@ class UserSettingsRepository(private val userSettingsDao: UserSettingsDao) {
         targetCarbs: Double = 0.0
     ) {
         val current = userSettingsDao.getUserSettingsSync()
-        val settings = UserSettings(
+        val settings = current?.copy(
+            targetCalories = targetCalories,
+            targetProteins = targetProteins,
+            targetFats = targetFats,
+            targetCarbs = targetCarbs
+        ) ?: UserSettings(
             id = 1,
             targetCalories = targetCalories,
             targetProteins = targetProteins,
             targetFats = targetFats,
-            targetCarbs = targetCarbs,
-            currentStreak = current?.currentStreak ?: 0,
-            lastStreakDate = current?.lastStreakDate ?: 0L
+            targetCarbs = targetCarbs
+        )
+        userSettingsDao.insertSettings(settings)
+    }
+
+    suspend fun updateSurveyData(
+        age: Int,
+        weight: Double,
+        height: Double,
+        gender: String,
+        activityLevel: String,
+        goal: String,
+        allergens: String,
+        targetCalories: Double,
+        targetProteins: Double,
+        targetFats: Double,
+        targetCarbs: Double
+    ) {
+        val current = userSettingsDao.getUserSettingsSync()
+        val settings = (current ?: UserSettings(id = 1)).copy(
+            age = age,
+            weight = weight,
+            height = height,
+            gender = gender,
+            activityLevel = activityLevel,
+            goal = goal,
+            allergens = allergens,
+            targetCalories = targetCalories,
+            targetProteins = targetProteins,
+            targetFats = targetFats,
+            targetCarbs = targetCarbs
         )
         userSettingsDao.insertSettings(settings)
     }

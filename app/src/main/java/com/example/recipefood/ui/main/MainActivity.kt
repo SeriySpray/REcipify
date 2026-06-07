@@ -1,22 +1,30 @@
 package com.example.recipefood.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.recipefood.R
+import com.example.recipefood.data.RecipeDatabase
+import com.example.recipefood.data.UserSettingsRepository
+import com.example.recipefood.ui.settings.WelcomeActivity
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        checkFirstRun()
         setContentView(R.layout.activity_main)
 
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
         viewPager.adapter = MainPagerAdapter(this)
         
-        // Визначаємо початкову сторінку: 0 для трекера, 1 для рецептів (за замовчуванням)
-        val startPage = if (intent.getBooleanExtra("goto_tracker", false)) 0 else 1
+        // Визначаємо початкову сторінку: 0 для трекера, 1 для рецептів
+        val startPage = if (intent.getBooleanExtra("goto_recipes", false)) 1 else 0
         viewPager.currentItem = startPage
 
         val dot0 = findViewById<View>(R.id.dot0)
@@ -31,5 +39,18 @@ class MainActivity : AppCompatActivity() {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) = updateDots(position)
         })
+    }
+
+    private fun checkFirstRun() {
+        val database = RecipeDatabase.getDatabase(this)
+        val repository = UserSettingsRepository(database.userSettingsDao())
+        
+        lifecycleScope.launch {
+            val settings = repository.getUserSettingsSync()
+            if (settings == null || settings.targetCalories == 0.0) {
+                val intent = Intent(this@MainActivity, WelcomeActivity::class.java)
+                startActivity(intent)
+            }
+        }
     }
 }

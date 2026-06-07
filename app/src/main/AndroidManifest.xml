@@ -99,6 +99,17 @@
 
         <!-- Settings -->
         <activity
+            android:name=".ui.settings.WelcomeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Recipemanager" />
+
+        <activity
+            android:name=".ui.settings.SurveyActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Recipemanager" />
+
+        <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
 

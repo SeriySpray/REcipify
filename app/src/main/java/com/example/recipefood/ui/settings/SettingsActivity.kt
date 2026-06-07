@@ -33,6 +33,10 @@ class SettingsActivity : AppCompatActivity() {
         loadSettings()
 
         binding.btnSaveSettings.setOnClickListener { saveSettings() }
+        binding.btnOpenSurvey.setOnClickListener {
+            val intent = android.content.Intent(this, SurveyActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun setupToolbar() {

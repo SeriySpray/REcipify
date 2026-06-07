@@ -51,6 +51,18 @@ class GroqAIService {
         lastRequestTime = System.currentTimeMillis()
     }
 
+    private fun sanitizeUkrainianText(text: String): String {
+        // 1. Видаляємо маркдаун та зайві символи
+        var filtered = text.replace(Regex("[*#_~`>]+"), "")
+        
+        // 2. Видаляємо англійські літери та будь-які інші некириличні символи
+        // Залишаємо тільки українські літери, цифри та базову пунктуацію
+        filtered = filtered.replace(Regex("[^а-яА-ЯіїєґІЇЄҐ0-9\\s.,!?:;()\\-\"\'%+=/\\u2013\\u2014]"), "")
+        
+        // 3. Видаляємо подвійні пробіли
+        return filtered.replace(Regex("\\s+"), " ").trim()
+    }
+
     private fun extractContent(responseBody: String): String {
         val jsonResponse = JsonParser.parseString(responseBody).asJsonObject
         return jsonResponse
@@ -93,8 +105,11 @@ class GroqAIService {
             2. ПРАВИЛО МАСШТАБУ: Використовуй розмір тарілки/виделки. Одна порція ≈ 300-500г.
             3. ПРИХОВАНІ ІНГРЕДІЄНТИ: Враховуй олію, соуси, цукор.
 
-            Поверни результат ТІЛЬКИ у форматі JSON українською мовою. 
-            ЗАБОРОНЕНО використовувати ієрогліфи або будь-які некириличні символи (крім цифр та дужок).
+            ПРАВИЛА МОВИ:
+            - Поверни результат ТІЛЬКИ у форматі JSON СУТО УКРАЇНСЬКОЮ МОВОЮ.
+            - КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати російські слова (наприклад, "лук", "картошка", "курица" тощо). Використовуй тільки "цибуля", "картопля", "курка".
+            - ЗАБОРОНЕНО використовувати ієрогліфи, латиницю або будь-які некириличні символи (крім цифр та дужок).
+
             {
               "is_food": true,
               "name": "Назва страви",
@@ -146,7 +161,11 @@ class GroqAIService {
                 throw Exception("NOT_FOOD")
             }
 
-            gson.fromJson(content, Food::class.java)
+            val food = gson.fromJson(content, Food::class.java)
+            food.copy(
+                name = sanitizeUkrainianText(food.name),
+                products = food.products.map { it.copy(name = sanitizeUkrainianText(it.name)) }.toMutableList()
+            )
         } catch (e: Exception) {
             Log.e("GroqService", "Exception in analyzeFood", e)
             throw e
@@ -163,7 +182,9 @@ class GroqAIService {
             1. Якщо назва - це адекватна їжа (навіть якщо проста, як "хліб"), поверни JSON { "is_okay": true }.
             2. Якщо назва - це повна дурня, неїстівні речі (цвяхи, бетон, шкарпетки) або щось відверто огидне/незрозуміле, поверни { "is_okay": false, "comment": "Жартівливий короткий коментар українською про те, чому це не варто їсти" }.
             
-            Відповідай ТІЛЬКИ JSON українською. КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати іноземні ієрогліфи.
+            ПРАВИЛА МОВИ:
+            - Відповідай ТІЛЬКИ JSON СУТО УКРАЇНСЬКОЮ МОВОЮ. 
+            - КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати російську мову або іноземні ієрогліфи.
         """.trimIndent()
 
         val requestBody = JsonObject().apply {
@@ -183,7 +204,7 @@ class GroqAIService {
             val content = extractContent(response.body?.string() ?: "")
             val json = JsonParser.parseString(content).asJsonObject
             val isOkay = json.get("is_okay").asBoolean
-            val comment = if (!isOkay) json.get("comment").asString else null
+            val comment = if (!isOkay) sanitizeUkrainianText(json.get("comment").asString) else null
             isOkay to comment
         } catch (e: Exception) {
             true to null
@@ -206,14 +227,21 @@ class GroqAIService {
             Визнач назву, необхідні інгредієнти з кількістю, складність, приблизний час приготування та покрокову інструкцію.
             Також розрахуй загальний КБЖВ для всього рецепту.
             
-            Поверни результат ТІЛЬКИ у форматі JSON українською мовою. 
-            ЗАБОРОНЕНО використовувати ієрогліфи, японські чи китайські символи.
+            ПРАВИЛА JSON (СУВОРО):
+            - Поверни ТІЛЬКИ валідний JSON.
+            - Поле "instructions" ПОВИННО бути одним рядком (String), де кроки розділені символом \n. КАТЕГОРИЧНО ЗАБОРОНЕНО повертати масив [].
+            - Поле "ingredients" повинно бути масивом рядків.
+            
+            ПРАВИЛА МОВИ:
+            - Результат СУТО УКРАЇНСЬКОЮ МОВОЮ. 
+            - ЗАБОРОНЕНО використовувати російські слова, ієрогліфи або латиницю.
+
             {
-              "name": "Назва страви (домашній варіант)",
+              "name": "Назва страви",
               "ingredients": ["Продукт 1 (кількість)", "Продукт 2 (кількість)"],
               "difficulty": "Легкий" або "Середній" або "Складний",
               "cookingTime": 45,
-              "instructions": "1. Перший крок...\n2. Другий крок...",
+              "instructions": "1. Крок один...\n2. Крок два...",
               "calories": 450.0,
               "proteins": 20.0,
               "fats": 15.0,
@@ -223,7 +251,7 @@ class GroqAIService {
 
         val requestBody = JsonObject().apply {
             addProperty("model", visionModel)
-            addProperty("temperature", 0.5)
+            addProperty("temperature", 0.1)
             addProperty("max_tokens", 4096)
             add("messages", gson.toJsonTree(listOf(
                 mapOf(
@@ -257,7 +285,13 @@ class GroqAIService {
             }
 
             val content = extractContent(responseBody)
-            gson.fromJson(content, Recipe::class.java)
+            val recipe = gson.fromJson(content, Recipe::class.java)
+            recipe.copy(
+                name = sanitizeUkrainianText(recipe.name),
+                ingredients = recipe.ingredients.map { sanitizeUkrainianText(it) },
+                instructions = sanitizeUkrainianText(recipe.instructions),
+                difficulty = sanitizeUkrainianText(recipe.difficulty)
+            )
         } catch (e: Exception) {
             Log.e("GroqService", "Exception in analyzeRecipeFromImage", e)
             throw e
@@ -286,8 +320,10 @@ class GroqAIService {
             4. Покрокову інструкцію приготування
             5. Загальний КБЖВ
             
-            Поверни результат ТІЛЬКИ у форматі JSON українською мовою. 
-            КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати будь-які ієрогліфи.
+            ПРАВИЛА МОВИ:
+            - Поверни результат ТІЛЬКИ у форматі JSON СУТО УКРАЇНСЬКОЮ МОВОЮ. 
+            - КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати російську мову або будь-які ієрогліфи.
+
             {
               "name": "${food.name} (домашнє приготування)",
               "ingredients": ["Продукт 1 (кількість)", "Продукт 2 (кількість)"],
@@ -326,7 +362,13 @@ class GroqAIService {
             }
 
             val content = extractContent(responseBody)
-            gson.fromJson(content, Recipe::class.java)
+            val recipe = gson.fromJson(content, Recipe::class.java)
+            recipe.copy(
+                name = sanitizeUkrainianText(recipe.name),
+                ingredients = recipe.ingredients.map { sanitizeUkrainianText(it) },
+                instructions = sanitizeUkrainianText(recipe.instructions),
+                difficulty = sanitizeUkrainianText(recipe.difficulty)
+            )
         } catch (e: Exception) {
             Log.e("GroqService", "Exception in generateRecipeFromFood", e)
             throw e
@@ -351,7 +393,10 @@ class GroqAIService {
             $ingredientsText$instructionsSection
 
             Визнач загальну харчову цінність всього рецепту з урахуванням способу приготування.
-            Відповідай ТІЛЬКИ валідним JSON без ієрогліфів.
+            ПРАВИЛА:
+            - Відповідай ТІЛЬКИ валідним JSON.
+            - ЗАБОРОНЕНО використовувати ієрогліфи або російську мову.
+
             {
               "calories": 450.0,
               "proteins": 25.0,
@@ -410,11 +455,15 @@ class GroqAIService {
             - Білки (г)
             - Жири (г)
             - Вуглеводи (г)
-            Аналіз виконуй максимально точно. Назви страв та продуктів вписуй на українській мові.
-            КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати китайські або японські ієрогліфи.
+            
+            ПРАВИЛА МОВИ ТА ФОРМАТУ:
+            - Аналіз виконуй максимально точно. 
+            - Назви страв та продуктів вписуй СУТО УКРАЇНСЬКОЮ МОВОЮ.
+            - КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати російські слова, китайські або японські ієрогліфи.
+
             Поверни результат у форматі JSON:
             {
-              "name": "${food.name}",
+              "name": "Назва страви",
               "nutrition": {
                 "calories": 500.0,
                 "proteins": 25.0,
@@ -423,7 +472,7 @@ class GroqAIService {
               },
               "products": [
                 {
-                  "name": "Продукт 1",
+                  "name": "Назва продукту",
                   "weight": 100,
                   "nutrition": {
                     "calories": 200.0,
@@ -456,7 +505,7 @@ class GroqAIService {
 
         try {
             val response = client.newCall(request).execute()
-            val responseBody = response.body?.string() ?: throw Exception("Порожня відповідь")
+            val responseBody = response.body?.string() ?: throw Exception("Порожня відповідь від сервера")
 
             Log.d("GroqService", "Nutrition response code: ${response.code}")
 
@@ -466,8 +515,11 @@ class GroqAIService {
             }
 
             val content = extractContent(responseBody)
-            Log.d("GroqService", "Nutrition analysis complete")
-            gson.fromJson(content, Food::class.java)
+            val analyzedFood = gson.fromJson(content, Food::class.java)
+            analyzedFood.copy(
+                name = sanitizeUkrainianText(analyzedFood.name),
+                products = analyzedFood.products.map { it.copy(name = sanitizeUkrainianText(it.name)) }.toMutableList()
+            )
         } catch (e: Exception) {
             Log.e("GroqService", "Exception in analyzeNutrition", e)
             throw e
@@ -476,13 +528,19 @@ class GroqAIService {
 
     suspend fun getNutritionTips(
         todayStats: NutritionInfo, 
-        targets: NutritionInfo
+        targets: NutritionInfo,
+        allergens: String = ""
     ): String = withContext(Dispatchers.IO) {
         Log.d("GroqService", "getNutritionTips() called for positive data analysis")
         waitForRateLimit()
 
+        val allergensInstruction = if (allergens.isNotBlank()) {
+            "\nКАТЕГОРИЧНО ЗАБОРОНЕНО радити продукти, на які у користувача АЛЕРГІЯ: $allergens."
+        } else ""
+
         val prompt = """
             Ти — позитивний та професійний дієтолог-ментор. Твоє завдання: проаналізувати сьогоднішні показники БЖВ і дати мотивуючу ПРАКТИЧНУ пораду.
+            $allergensInstruction
             
             ДАНІ ДЛЯ АНАЛІЗУ:
             1. Ціль: ${targets.calories.toInt()} ккал. Спожито: ${todayStats.calories.toInt()} ккал.
@@ -500,11 +558,9 @@ class GroqAIService {
             4. СТИЛЬ: Будь натхненним, коротким і конкретним. 
             
             КАТЕГОРИЧНІ ПРАВИЛА МОВИ ТА ДАНИХ:
-            - Тільки чиста українська мова.
-            - КАТЕГОРИЧНО ЗАБОРОНЕНО ВИКОРИСТОВУВАТИ БУДЬ-ЯКІ АНГЛІЙСЬКІ СЛОВА ТА ТЕРМІНИ.
-            - ЗАБОРОНЕНО писати "protein", "calories", "carbs", "fats", "nutrition", "tips" тощо.
+            - Тільки чиста українська мова. СУВОРО ЗАБОРОНЕНО використовувати російські або англійські слова.
             - Використовуй тільки українські відповідники: "білки", "калорії", "вуглеводи", "жири", "харчування", "поради".
-            - ВИКОРИСТОВУЙ ТІЛЬКИ ТІ ЧИСЛА, ЯКІ НАДАНІ В ДАНИХ ДЛЯ АНАЛІЗУ. ЗАБОРОНЕНО ВИГАДУВАТИ ІНШІ ЦИФРИ АБО ЗМІНЮВАТИ НАДАНІ.
+            - ВИКОРИСТОВУЙ ТІЛЬКИ ТІ ЧИСЛА, ЯКІ НАДАНІ В ДАНИХ ДЛЯ АНАЛІЗУ. 
             - Один короткий абзац (2-4 речення).
             
             Напиши теплу та професійну пораду ВИКЛЮЧНО УКРАЇНСЬКОЮ МОВОЮ.
@@ -535,15 +591,7 @@ class GroqAIService {
             }
 
             val rawContent = extractContent(responseBody)
-            
-            // 1. Видаляємо маркдаун
-            var filteredContent = rawContent.replace(Regex("[*#_~`>]+"), "")
-            
-            // 2. Фільтруємо лише дозволені символи (Українська, цифри, пунктуація)
-            // Видаляємо англійські літери a-zA-Z, щоб гарантувати відсутність англійських слів
-            filteredContent = filteredContent.replace(Regex("[^а-яА-ЯіїєґІЇЄҐ0-9\\s.,!?:;()\\-\"\'%+=/\\u2013\\u2014]"), "")
-            
-            filteredContent.replace(Regex("\\s+"), " ").trim()
+            sanitizeUkrainianText(rawContent)
         } catch (e: Exception) {
             "На жаль, не вдалося згенерувати поради зараз. Спробуйте пізніше!"
         }

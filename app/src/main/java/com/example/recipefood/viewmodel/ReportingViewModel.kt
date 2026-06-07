@@ -93,8 +93,8 @@ class ReportingViewModel(application: Application) : AndroidViewModel(applicatio
             Log.d("ReportingViewModel", "Using cached AI tips")
         } else {
             _aiTips.value = "Аналізуємо ваш сьогоднішній прогрес..."
-            // Викликаємо оновлену версію з двома параметрами
-            val newTips = groqService.getNutritionTips(today, targets) 
+            // Викликаємо оновлену версію з трьома параметрами (додаємо алергени)
+            val newTips = groqService.getNutritionTips(today, targets, settings.allergens) 
             _aiTips.value = newTips
             
             val updatedSettings = settings.copy(

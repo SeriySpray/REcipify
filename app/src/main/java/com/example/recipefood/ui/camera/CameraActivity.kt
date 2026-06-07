@@ -235,10 +235,26 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun bitmapToBase64(bitmap: Bitmap): String {
+        val resizedBitmap = resizeBitmap(bitmap, 1024)
         val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
         val byteArray = outputStream.toByteArray()
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+    }
+
+    private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
+        var width = bitmap.width
+        var height = bitmap.height
+
+        val bitmapRatio = width.toFloat() / height.toFloat()
+        if (bitmapRatio > 1) {
+            width = maxSize
+            height = (width / bitmapRatio).toInt()
+        } else {
+            height = maxSize
+            width = (height * bitmapRatio).toInt()
+        }
+        return Bitmap.createScaledBitmap(bitmap, width, height, true)
     }
 
     override fun onDestroy() {

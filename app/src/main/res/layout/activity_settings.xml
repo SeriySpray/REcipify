@@ -17,8 +17,7 @@
         <!-- Top bar -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:paddingHorizontal="16dp">
+            android:layout_height="56dp">
 
             <ImageButton
                 android:id="@+id/btnBackLink"
@@ -42,6 +41,32 @@
                 android:fontFamily="sans-serif-medium"
                 android:layout_centerInParent="true" />
         </RelativeLayout>
+
+        <!-- Section: Розрахунок КБЖВ -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="РОЗРАХУНОК НОРМ"
+            style="@style/SectionLabel"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Бажаєте розрахувати норму на основі ваших параметрів тіла?"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnOpenSurvey"
+            style="@style/PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Пройти опитування"
+            android:backgroundTint="@color/surface_elevated"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="24dp" />
 
         <!-- Section: Енергетична ціль -->
         <TextView

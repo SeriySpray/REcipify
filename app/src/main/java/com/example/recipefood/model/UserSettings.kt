@@ -14,5 +14,14 @@ data class UserSettings(
     val currentStreak: Int = 0,
     val lastStreakDate: Long = 0,
     val lastAiTip: String? = null,
-    val lastAiTipMealCount: Int = 0
+    val lastAiTipMealCount: Int = 0,
+    
+    // Нові поля для розрахунку КБЖВ
+    val age: Int = 0,
+    val weight: Double = 0.0,
+    val height: Double = 0.0,
+    val gender: String = "male", // "male" або "female"
+    val activityLevel: String = "sedentary", // sedentary, light, moderate, active, extra
+    val goal: String = "maintain", // lose, maintain, gain
+    val allergens: String = "" // Список алергенів через кому
 )

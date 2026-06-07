@@ -16,8 +16,7 @@
         <!-- Top bar -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:paddingHorizontal="16dp">
+            android:layout_height="56dp">
 
             <ImageButton
                 android:id="@+id/btnBackLink"
