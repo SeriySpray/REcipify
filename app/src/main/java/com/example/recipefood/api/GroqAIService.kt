@@ -65,24 +65,26 @@ class GroqAIService {
 
     private fun extractContent(responseBody: String): String {
         val jsonResponse = JsonParser.parseString(responseBody).asJsonObject
-        return jsonResponse
+        val rawContent = jsonResponse
             .getAsJsonArray("choices")
             ?.get(0)?.asJsonObject
             ?.getAsJsonObject("message")
             ?.get("content")?.asString
-            ?.trim()
-            ?.removePrefix("```json")
-            ?.removePrefix("```")
-            ?.removeSuffix("```")
-            ?.trim()
-            ?: throw Exception("Не вдалося отримати текст відповіді з JSON")
+            ?.trim() ?: throw Exception("Не вдалося отримати текст відповіді")
+
+        // Очищаємо від маркдауну, якщо він є
+        return rawContent
+            .removePrefix("```json")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
     }
 
     private fun handleErrorCode(code: Int, body: String): Nothing {
         when (code) {
             401 -> throw Exception("Невірний API ключ Groq (401)")
             429 -> throw Exception("Перевищено ліміт запитів Groq (429). Зачекайте хвилину")
-            400 -> throw Exception("Невірний формат запиту (400): ${body.take(200)}")
+            400 -> throw Exception("Невірний формат запиту (400): ${body.take(300)}")
             413 -> throw Exception("Зображення занадто велике (413). Спробуйте менший файл")
             else -> throw Exception("Помилка Groq API (${code}): ${body.take(200)}")
         }
@@ -101,15 +103,17 @@ class GroqAIService {
             ВАЖЛИВО: Якщо на фото НЕМАЄ їжі (наприклад, це просто кімната, людина, текст, чи будь-який предмет, який не можна з'їсти), поверни JSON з полем "is_food": false.
             
             Якщо їжа є:
-            1. Визнач інгредієнти та їхню вагу для ОДНІЄЇ ПОРЦІЇ.
-            2. ПРАВИЛО МАСШТАБУ: Використовуй розмір тарілки/виделки. Одна порція ≈ 300-500г.
+            1. Визнач інгредієнти та їхню ПРИБЛИЗНУ вагу на око. 
+            2. НЕ ОБМЕЖУЙСЯ стандартними порціями (300-500г). Якщо на фото велика тарілка або декілька порцій - вказуй реальну вагу, яку бачиш.
             3. ПРИХОВАНІ ІНГРЕДІЄНТИ: Враховуй олію, соуси, цукор.
 
-            ПРАВИЛА МОВИ:
-            - Поверни результат ТІЛЬКИ у форматі JSON СУТО УКРАЇНСЬКОЮ МОВОЮ.
-            - КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати російські слова (наприклад, "лук", "картошка", "курица" тощо). Використовуй тільки "цибуля", "картопля", "курка".
-            - ЗАБОРОНЕНО використовувати ієрогліфи, латиницю або будь-які некириличні символи (крім цифр та дужок).
+            ПРАВИЛА ВІДПОВІДІ:
+            - Відповідь має бути ТІЛЬКИ у форматі JSON.
+            - ЖОДНОГО тексту до або після JSON.
+            - Мова результатів: СУТО УКРАЇНСЬКА.
+            - КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати російські слова.
 
+            ФОРМАТ JSON:
             {
               "is_food": true,
               "name": "Назва страви",
@@ -119,10 +123,15 @@ class GroqAIService {
             }
         """.trimIndent()
 
+        val responseFormat = JsonObject().apply {
+            addProperty("type", "json_object")
+        }
+
         val requestBody = JsonObject().apply {
             addProperty("model", visionModel)
-            addProperty("temperature", 0.4)
+            addProperty("temperature", 0.0)
             addProperty("max_tokens", 2048)
+            add("response_format", responseFormat)
             add("messages", gson.toJsonTree(listOf(
                 mapOf(
                     "role" to "user",
@@ -251,7 +260,7 @@ class GroqAIService {
 
         val requestBody = JsonObject().apply {
             addProperty("model", visionModel)
-            addProperty("temperature", 0.1)
+            addProperty("temperature", 0.0)
             addProperty("max_tokens", 4096)
             add("messages", gson.toJsonTree(listOf(
                 mapOf(
@@ -339,7 +348,7 @@ class GroqAIService {
 
         val requestBody = JsonObject().apply {
             addProperty("model", textModel)
-            addProperty("temperature", 0.5)
+            addProperty("temperature", 0.0)
             addProperty("max_tokens", 4096)
             add("messages", gson.toJsonTree(listOf(
                 mapOf("role" to "user", "content" to prompt)
@@ -389,10 +398,19 @@ class GroqAIService {
         } else ""
 
         val prompt = """
-            Розрахуй КБЖВ для рецепту "$recipeName" з такими інгредієнтами:
+            Проаналізуй та розрахуй загальну харчову цінність (КБЖВ) для всього рецепту "$recipeName".
+            
+            Інгредієнти:
             $ingredientsText$instructionsSection
 
-            Визнач загальну харчову цінність всього рецепту з урахуванням способу приготування.
+            МЕТОДИКА РОЗРАХУНКУ:
+            1. Визнач кількість кожного інгредієнта. Якщо кількість не вказана, використовуй середньостатистичну порцію для даного рецепту.
+            2. Розрахуй калорії, білки, жири та вуглеводи для кожного інгредієнта окремо.
+            3. Додай всі значення, щоб отримати загальний КБЖВ для ВСІЄЇ страви.
+            4. Врахуй втрати при термообробці (уварювання, смаження тощо).
+            5. БУДЬ КОНСЕРВАТИВНИМ ТА ТОЧНИМ. Результат повинен бути максимально реалістичним.
+            6. ВАЖЛИВО: Оскільки ти ШІ, твій розрахунок повинен бути стабільним. Для одних і тих самих інгредієнтів завжди давай однакову відповідь.
+
             ПРАВИЛА:
             - Відповідай ТІЛЬКИ валідним JSON.
             - ЗАБОРОНЕНО використовувати ієрогліфи або російську мову.
@@ -407,8 +425,8 @@ class GroqAIService {
 
         val requestBody = JsonObject().apply {
             addProperty("model", textModel)
-            addProperty("temperature", 0.3)
-            addProperty("max_tokens", 256)
+            addProperty("temperature", 0.0)
+            addProperty("max_tokens", 512)
             add("messages", gson.toJsonTree(listOf(
                 mapOf("role" to "user", "content" to prompt)
             )))
@@ -457,7 +475,7 @@ class GroqAIService {
             - Вуглеводи (г)
             
             ПРАВИЛА МОВИ ТА ФОРМАТУ:
-            - Аналіз виконуй максимально точно. 
+            - Аналіз виконуй максимально точно та стабільно (однакові вхідні дані = однаковий результат). 
             - Назви страв та продуктів вписуй СУТО УКРАЇНСЬКОЮ МОВОЮ.
             - КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати російські слова, китайські або японські ієрогліфи.
 
@@ -489,7 +507,7 @@ class GroqAIService {
 
         val requestBody = JsonObject().apply {
             addProperty("model", textModel)
-            addProperty("temperature", 0.4)
+            addProperty("temperature", 0.0)
             addProperty("max_tokens", 4096)
             add("messages", gson.toJsonTree(listOf(
                 mapOf("role" to "user", "content" to prompt)

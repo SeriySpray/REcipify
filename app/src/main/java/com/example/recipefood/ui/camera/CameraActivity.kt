@@ -3,8 +3,6 @@ package com.example.recipefood.ui.camera
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
 import android.widget.Toast
@@ -24,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -49,9 +46,29 @@ class CameraActivity : AppCompatActivity() {
         ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
-            contentResolver.openInputStream(it)?.use { inputStream ->
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                analyzeImage(bitmap)
+            binding.progressBar.visibility = android.view.View.VISIBLE
+            binding.btnCapture.isEnabled = false
+            
+            lifecycleScope.launch {
+                try {
+                    val base64 = withContext(Dispatchers.IO) {
+                        contentResolver.openInputStream(it)?.use { inputStream ->
+                            val bytes = inputStream.readBytes()
+                            Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        }
+                    }
+                    if (base64 != null) {
+                        analyzeImage(base64)
+                    } else {
+                        binding.progressBar.visibility = android.view.View.GONE
+                        binding.btnCapture.isEnabled = true
+                        Toast.makeText(this@CameraActivity, "Помилка читання файлу", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    binding.progressBar.visibility = android.view.View.GONE
+                    binding.btnCapture.isEnabled = true
+                    Toast.makeText(this@CameraActivity, "Помилка: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -94,8 +111,19 @@ class CameraActivity : AppCompatActivity() {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
 
+            val resolutionSelector = androidx.camera.core.resolutionselector.ResolutionSelector.Builder()
+                .setResolutionStrategy(
+                    androidx.camera.core.resolutionselector.ResolutionStrategy(
+                        android.util.Size(1920, 1080),
+                        androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER
+                    )
+                )
+                .build()
+
             imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setResolutionSelector(resolutionSelector)
+                .setTargetRotation(binding.viewFinder.display.rotation)
                 .build()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -121,9 +149,17 @@ class CameraActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
-                    val bitmap = imageProxyToBitmap(image)
-                    image.close()
-                    analyzeImage(bitmap)
+                    lifecycleScope.launch(Dispatchers.Default) {
+                        val buffer = image.planes[0].buffer
+                        val bytes = ByteArray(buffer.remaining())
+                        buffer.get(bytes)
+                        val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        image.close()
+                        
+                        withContext(Dispatchers.Main) {
+                            analyzeImage(base64)
+                        }
+                    }
                 }
 
                 override fun onError(exception: ImageCaptureException) {
@@ -135,23 +171,12 @@ class CameraActivity : AppCompatActivity() {
         )
     }
 
-    private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
-        val buffer = image.planes[0].buffer
-        val bytes = ByteArray(buffer.remaining())
-        buffer.get(bytes)
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-    }
-
-    private fun analyzeImage(bitmap: Bitmap) {
+    private fun analyzeImage(base64Image: String) {
         val isRecipeMode = intent.getBooleanExtra("RECIPE_MODE", false)
         val isGenerateRecipeMode = intent.getBooleanExtra("GENERATE_RECIPE_MODE", false)
         
         lifecycleScope.launch {
             try {
-                val base64Image = withContext(Dispatchers.IO) {
-                    bitmapToBase64(bitmap)
-                }
-
                 if (isGenerateRecipeMode) {
                     val recipe = withContext(Dispatchers.IO) {
                         groqService.analyzeRecipeFromImage(base64Image)
@@ -232,29 +257,6 @@ class CameraActivity : AppCompatActivity() {
         }
         
         dialog.show()
-    }
-
-    private fun bitmapToBase64(bitmap: Bitmap): String {
-        val resizedBitmap = resizeBitmap(bitmap, 1024)
-        val outputStream = ByteArrayOutputStream()
-        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
-        val byteArray = outputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
-    }
-
-    private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
-        var width = bitmap.width
-        var height = bitmap.height
-
-        val bitmapRatio = width.toFloat() / height.toFloat()
-        if (bitmapRatio > 1) {
-            width = maxSize
-            height = (width / bitmapRatio).toInt()
-        } else {
-            height = maxSize
-            width = (height * bitmapRatio).toInt()
-        }
-        return Bitmap.createScaledBitmap(bitmap, width, height, true)
     }
 
     override fun onDestroy() {
