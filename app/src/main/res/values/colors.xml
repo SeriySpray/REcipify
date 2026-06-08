@@ -2,7 +2,7 @@
 <resources>
     <!-- Light theme palette — day mode -->
     <color name="black">#F5F5F5</color>
-    <color name="white">#2D2D2D</color>
+    <color name="white">#3D3D3D</color>
 
     <color name="surface_dark">#EBEBEB</color>
     <color name="surface">#FFFFFF</color>
@@ -12,7 +12,7 @@
     <color name="border_active">#AAAAAA</color>
     <color name="border_subtle">#E8E8E8</color>
 
-    <color name="text_primary">#222222</color>
+    <color name="text_primary">#333333</color>
     <color name="text_secondary">#666666</color>
     <color name="text_tertiary">#888888</color>
     <color name="text_muted">#AAAAAA</color>
@@ -24,7 +24,7 @@
     <color name="dark_gray">#F5F5F5</color>
     <color name="light_gray">#E8E8E8</color>
     <color name="medium_gray">#BBBBBB</color>
-    <color name="accent">#333333</color>
+    <color name="accent">#444444</color>
     <color name="gray_dark">#F5F5F5</color>
     <color name="gray_medium">#E8E8E8</color>
     <color name="gray_light">#CCCCCC</color>
@@ -32,11 +32,11 @@
     <color name="card_background">#FFFFFF</color>
     <color name="primary">#FFFFFF</color>
     <color name="primary_variant">#F5F5F5</color>
-    <color name="secondary">#333333</color>
+    <color name="secondary">#444444</color>
     <color name="status_bar">#F5F5F5</color>
-    <color name="button_background">#333333</color>
+    <color name="button_background">#444444</color>
     <color name="button_text">#FFFFFF</color>
-    <color name="icon_tint">#2D2D2D</color>
+    <color name="icon_tint">#3D3D3D</color>
 
     <color name="difficulty_easy">#4CAF50</color>
     <color name="difficulty_medium">#FF9800</color>
